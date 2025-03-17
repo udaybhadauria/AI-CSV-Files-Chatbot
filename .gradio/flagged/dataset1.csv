@@ -1,0 +1,5 @@
+Upload CSV File,Select Previous File,Enter Query,Predefined Queries,output,timestamp
+,people-1000.csv,,,"File: people-1000.csv
+File: people-1000.csv
+Closest match:
+{'Index': '337', 'User Id': '99375ddcf9ADB4b', 'First Name': 'Kirk', 'Last Name': 'Norton', 'Sex': 'Female', 'Email': 'hahnroberto@example.org', 'Phone': '825.175.3063x06412', 'Date of birth': '1923-04-07', 'Job Title': 'Broadcast presenter'}",2025-03-15 21:42:53.027565
