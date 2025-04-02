@@ -128,56 +128,6 @@ def update_ui(uploaded_file, selected_file):
 
     return current_file_name_display, csv_file_info, current_columns_display
 
-@app.get("/statistics/")
-def compute_statistics():
-    if df is None:
-        raise HTTPException(status_code=400, detail="❌ No CSV loaded.")
-    
-    num_df = df.select_dtypes(include=[np.number])
-    stats = {
-        "Mean": np.mean(num_df, axis=0).tolist(),
-        "Median": np.median(num_df, axis=0).tolist(),
-        "Standard Deviation": np.std(num_df, axis=0).tolist(),
-        "Variance": np.var(num_df, axis=0).tolist(),
-        "Min": np.min(num_df, axis=0).tolist(),
-        "Max": np.max(num_df, axis=0).tolist(),
-    }
-    return stats
-
-@app.get("/correlation-heatmap/")
-def generate_correlation_heatmap():
-    if df is None:
-        raise HTTPException(status_code=400, detail="❌ No CSV loaded.")
-    
-    num_df = df.select_dtypes(include=[np.number])
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(num_df.corr(), annot=True, cmap="coolwarm", fmt=".2f")
-    
-    img_buffer = io.BytesIO()
-    plt.savefig(img_buffer, format="png")
-    img_buffer.seek(0)
-    plt.close()
-    
-    return StreamingResponse(img_buffer, media_type="image/png")
-
-@app.get("/outliers/")
-def detect_outliers():
-    if df is None:
-        raise HTTPException(status_code=400, detail="❌ No CSV loaded.")
-    
-    num_df = df.select_dtypes(include=[np.number])
-    z_scores = np.abs((num_df - num_df.mean()) / num_df.std())
-    outliers = (z_scores > 3).sum().to_dict()
-    return {"outliers": outliers}
-
-@app.get("/missing-values/")
-def missing_values_analysis():
-    if df is None:
-        raise HTTPException(status_code=400, detail="❌ No CSV loaded.")
-    
-    missing_counts = df.isna().sum().to_dict()
-    return {"missing_values": missing_counts}
-
 class QueryRequest(BaseModel):
     query: str
 
@@ -299,26 +249,6 @@ def launch_gradio():
 
         # Tabs
         with gr.Tabs():
-            with gr.Tab("Statistical Analysis"):
-                stats_btn = gr.Button("Compute Statistics")
-                stats_output = gr.JSON()
-                stats_btn.click(compute_statistics, outputs=[stats_output])
-                
-            with gr.Tab("Correlation Heatmap"):
-                heatmap_btn = gr.Button("Generate Heatmap")
-                heatmap_output = gr.Image()
-                heatmap_btn.click(generate_correlation_heatmap, outputs=[heatmap_output])
-                
-            with gr.Tab("Outlier Detection"):
-                outliers_btn = gr.Button("Detect Outliers")
-                outliers_output = gr.JSON()
-                outliers_btn.click(detect_outliers, outputs=[outliers_output])
-                
-            with gr.Tab("Missing Values Analysis"):
-                missing_values_btn = gr.Button("Analyze Missing Values")
-                missing_values_output = gr.JSON()
-                missing_values_btn.click(missing_values_analysis, outputs=[missing_values_output])
-                
             with gr.Tab("Pandas Query Section"):
                 user_query = gr.Textbox(label="📝 Enter Pandas Query", placeholder="e.g., df.head()")
                 query_btn = gr.Button("🔍 Run Query")
